@@ -164,6 +164,7 @@
       conn = peer.connect("sq-" + code);
 
       conn.on('open', () => {
+        conn.send({ type: 'IDENTIFY', role: 'customer' });
         document.getElementById('connect-screen').style.display = 'none';
         document.getElementById('terminal-app').style.display = 'flex';
       });
