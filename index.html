@@ -10,129 +10,58 @@
     --square-blue: #006aff;
     --bg-dark: #000000;
     --green: #10b981;
-    --red: #ef4444;
+    --red: #E4142B;
     --text-muted: #8e8e93;
   }
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
   
   html, body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000000;
-    color: white;
-    overflow: hidden;
+    margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000000; color: white; overflow: hidden;
   }
 
-  .terminal-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #000000;
-  }
+  .terminal-container { width: 100%; height: 100%; display: flex; flex-direction: column; background: #000000; }
 
   .setup-screen { 
-    padding: 40px; 
-    text-align: center; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100%; 
-    max-width: 480px;
-    margin: 0 auto;
+    padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; max-width: 480px; margin: 0 auto;
   }
   .code-input { 
-    width: 100%; 
-    padding: 20px; 
-    font-size: 32px; 
-    text-align: center; 
-    border-radius: 16px; 
-    border: 1px solid #333; 
-    background: #111; 
-    color: #fff; 
-    letter-spacing: 8px; 
-    margin: 28px 0; 
-    font-family: monospace; 
-    outline: none;
+    width: 100%; padding: 20px; font-size: 32px; text-align: center; border-radius: 16px; border: 1px solid #333; background: #111; color: #fff; letter-spacing: 8px; margin: 28px 0; font-family: monospace; outline: none;
   }
-  .code-input:focus { border-color: var(--square-blue); }
-
   .connect-btn { 
-    width: 100%; 
-    padding: 20px; 
-    background: #ffffff; 
-    color: #000000; 
-    font-weight: 700; 
-    border: none; 
-    border-radius: 16px; 
-    font-size: 18px; 
-    cursor: pointer; 
+    width: 100%; padding: 20px; background: #ffffff; color: #000000; font-weight: 700; border: none; border-radius: 16px; font-size: 18px; cursor: pointer; 
   }
-  .connect-btn:active { background: #d4d4d4; }
 
-  .tap-zone-header {
-    height: 90px;
-    background: #000000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    z-index: 10;
-    flex-shrink: 0;
-  }
-  .nfc-icon {
-    width: 34px;
-    height: 34px;
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    display: none;
-  }
-  .tap-zone-header.active .nfc-icon {
-    display: block;
-    animation: pulse 1.2s infinite ease-in-out;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.85; }
-    50% { transform: scale(1.15); opacity: 1; }
-  }
+  .tap-zone-header { height: 90px; background: #000000; display: flex; align-items: center; justify-content: center; width: 100%; z-index: 10; flex-shrink: 0; }
+  .nfc-icon { width: 34px; height: 34px; fill: none; stroke: #ffffff; stroke-width: 2.2; stroke-linecap: round; display: none; }
+  .tap-zone-header.active .nfc-icon { display: block; animation: pulse 1.2s infinite ease-in-out; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.15); opacity: 1; } }
 
   .viewport { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-  .display-screen { 
-    flex: 1; 
-    background: #000000; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    padding: 40px; 
-    text-align: center; 
-  }
+  .screen { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; }
+
   .term-header { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
   .center-total-box { margin: auto 0; }
   .total-label { font-size: 18px; font-weight: 500; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
-  .total-price { font-size: 80px; font-weight: 800; color: #ffffff; letter-spacing: -2px; line-height: 1; }
+  .total-price { font-size: 76px; font-weight: 800; color: #ffffff; letter-spacing: -2px; line-height: 1; }
 
-  .pay-screen { 
-    flex: 1; 
-    background: var(--square-blue); 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    padding: 50px 40px; 
-    text-align: center; 
-    user-select: none;
-  }
-  .pay-total-label { font-size: 18px; font-weight: 600; color: rgba(255, 255, 255, 0.75); text-transform: uppercase; letter-spacing: 1px; }
-  .pay-total-amount { font-size: 76px; font-weight: 800; color: #ffffff; letter-spacing: -1.5px; margin-top: 6px; }
-  .pay-instructions { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 30px; line-height: 1.3; }
+  /* Tip Screen */
+  .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 20px 0; }
+  .tip-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 22px; font-size: 20px; font-weight: 700; border-radius: 14px; cursor: pointer; }
+  .tip-btn:active { background: #333; }
 
-  .approved-screen { background: var(--green); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .declined-screen { background: var(--red); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  /* Pay Screen */
+  .pay-screen { background: var(--square-blue) !important; user-select: none; }
+  .pay-total-amount { font-size: 76px; font-weight: 800; color: #ffffff; margin-top: 6px; }
+  .pay-instructions { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 20px; }
+
+  /* Signature Screen */
+  #sig-canvas { border: 2px dashed #444; background: #1c1c1e; border-radius: 14px; width: 100%; height: 240px; touch-action: none; margin: 15px 0; }
+
+  /* Status Screens */
+  .approved-bg { background: var(--green); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; }
+  .declined-bg { background: var(--square-blue); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; }
+  .circle-x { width: 90px; height: 90px; border: 4px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; font-weight: 300; margin-bottom: 20px; }
   
   .status-title { font-size: 42px; font-weight: 800; margin: 16px 0 6px 0; }
   .status-sub { font-size: 20px; opacity: 0.9; }
@@ -159,33 +88,64 @@
 
     <div class="viewport" id="viewport-container" style="display:none;">
 
-      <div class="display-screen" id="display-screen">
+      <div class="screen" id="display-screen" style="display:flex;">
         <div class="term-header">Square Terminal</div>
         <div class="center-total-box">
-          <div class="total-label">Total</div>
+          <div class="total-label">Total Due</div>
           <div class="total-price" id="total-val">$0.00</div>
         </div>
-        <div style="height: 24px;"></div>
+        <div style="font-size: 13px; color: var(--text-muted);">Ready for order...</div>
       </div>
 
-      <div class="pay-screen" id="pay-screen" style="display:none;">
+      <div class="screen" id="tip-screen">
         <div>
-          <div class="pay-total-label">Pay Amount</div>
+          <h2 style="font-size: 26px; margin: 0;">Would you like to leave a tip?</h2>
+          <p id="tip-total-label" style="color: var(--text-muted); font-size: 15px; margin-top:6px;"></p>
+        </div>
+        <div class="tip-grid">
+          <button class="tip-btn" onclick="selectTip(0)">No Tip</button>
+          <button class="tip-btn" onclick="selectTip(0.10)">10%</button>
+          <button class="tip-btn" onclick="selectTip(0.15)">15%</button>
+          <button class="tip-btn" onclick="selectTip(0.20)">20%</button>
+        </div>
+        <button class="connect-btn" style="background:#222; color:#fff;" onclick="selectTip(0)">Skip</button>
+      </div>
+
+      <div class="screen pay-screen" id="pay-screen">
+        <div>
+          <div class="total-label" style="color: rgba(255,255,255,0.7);">Final Amount</div>
           <div class="pay-total-amount" id="pay-amount">$0.00</div>
         </div>
-        <div class="pay-instructions">Insert, Tap,<br>or Swipe</div>
+        <div class="pay-instructions">Insert, Tap, or Swipe Card</div>
+        <div style="font-size: 13px; opacity: 0.8;">Awaiting terminal authorization...</div>
       </div>
 
-      <div class="approved-screen" id="approved-screen" style="display:none;">
-        <div style="font-size: 96px;">✅</div>
-        <div class="status-title">Approved</div>
-        <div class="status-sub">Thank you</div>
+      <div class="screen" id="signature-screen">
+        <div>
+          <h2 style="font-size: 24px; margin: 0;">Please Sign Below</h2>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Sign with your finger or stylus</p>
+        </div>
+        <canvas id="sig-canvas"></canvas>
+        <div style="display: flex; gap: 12px;">
+          <button class="connect-btn" style="background:#222; color:#fff; flex:1;" onclick="clearSignature()">Clear</button>
+          <button class="connect-btn" style="background:var(--green); color:#fff; flex:1;" onclick="submitSignature()">Confirm</button>
+        </div>
       </div>
 
-      <div class="declined-screen" id="declined-screen" style="display:none;">
-        <div style="font-size: 96px;">❌</div>
-        <div class="status-title">Declined</div>
-        <div class="status-sub">Please try another card</div>
+      <div class="screen" id="approved-screen" style="padding:0;">
+        <div class="approved-bg">
+          <div style="font-size: 80px;">✓</div>
+          <div class="status-title">Approved</div>
+          <div class="status-sub">Thank you for your purchase!</div>
+        </div>
+      </div>
+
+      <div class="screen" id="declined-screen" style="padding:0;">
+        <div class="declined-bg">
+          <div class="circle-x">✕</div>
+          <div class="status-title">Declined</div>
+          <div class="status-sub">Please try another payment method.</div>
+        </div>
       </div>
 
     </div>
@@ -193,15 +153,12 @@
 
 <script>
   let peer, conn, pingInterval;
+  let currentTotal = 0;
 
-  // Safe DOM Event listener binding so it never misses a click
   document.addEventListener('DOMContentLoaded', () => {
     const connectBtn = document.getElementById('connect-btn');
-    if (connectBtn) {
-      connectBtn.addEventListener('click', pairWithCashier);
-    }
+    if (connectBtn) connectBtn.addEventListener('click', pairWithCashier);
     
-    // Also allow pressing "Enter" on the keyboard input field
     const codeInput = document.getElementById('pair-code');
     if (codeInput) {
       codeInput.addEventListener('keydown', (e) => {
@@ -213,7 +170,6 @@
   function pairWithCashier() {
     const codeInput = document.getElementById('pair-code');
     const btn = document.getElementById('connect-btn');
-    
     if (!codeInput || !btn) return;
 
     const code = codeInput.value.trim();
@@ -225,18 +181,11 @@
     btn.disabled = true;
     btn.innerText = 'Connecting...';
 
-    if (peer) {
-      try { peer.destroy(); } catch(e) {}
-    }
+    if (peer) { try { peer.destroy(); } catch(e) {} }
 
     peer = new Peer({
       debug: 1,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
     });
 
     peer.on('open', () => {
@@ -246,7 +195,7 @@
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('tap-bar').style.display = 'flex';
         document.getElementById('viewport-container').style.display = 'flex';
-        document.getElementById('display-screen').style.display = 'flex';
+        showDisplayScreen();
 
         clearInterval(pingInterval);
         pingInterval = setInterval(() => {
@@ -256,10 +205,14 @@
 
       conn.on('data', data => {
         if (data.type === 'SYNC_CART') {
-          renderTotalOnly(data.total);
+          currentTotal = data.total;
+          document.getElementById('total-val').innerText = `$${(data.total || 0).toFixed(2)}`;
         }
-        else if (data.type === 'START_PAYMENT') {
-          showSquareBluePayment(data.total);
+        else if (data.type === 'START_TIP_SCREEN') {
+          showTipScreen(data.total);
+        }
+        else if (data.type === 'START_SIGNATURE') {
+          showSignatureScreen();
         }
         else if (data.type === 'FORCE_APPROVE') {
           showApproved();
@@ -273,9 +226,8 @@
       conn.on('error', handleDisconnect);
     });
 
-    peer.on('error', err => {
-      console.error(err);
-      alert('Could not connect. Ensure the Cashier screen is open and your code (' + code + ') is correct.');
+    peer.on('error', () => {
+      alert('Could not connect. Ensure Cashier screen is open with code: ' + code);
       btn.disabled = false;
       btn.innerText = 'Connect Terminal';
     });
@@ -286,7 +238,6 @@
     document.getElementById('setup-screen').style.display = 'flex';
     document.getElementById('tap-bar').style.display = 'none';
     document.getElementById('viewport-container').style.display = 'none';
-    
     const btn = document.getElementById('connect-btn');
     if (btn) {
       btn.disabled = false;
@@ -294,18 +245,32 @@
     }
   }
 
-  function renderTotalOnly(total) {
+  function showDisplayScreen() {
     hideAllScreens();
     document.getElementById('display-screen').style.display = 'flex';
     document.getElementById('tap-bar').classList.remove('active');
-    document.getElementById('total-val').innerText = `$${(total || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   }
 
-  function showSquareBluePayment(total) {
+  function showTipScreen(total) {
+    hideAllScreens();
+    document.getElementById('tip-screen').style.display = 'flex';
+    document.getElementById('tip-total-label').innerText = `Subtotal: $${total.toFixed(2)}`;
+    document.getElementById('tap-bar').classList.remove('active');
+  }
+
+  function selectTip(rate) {
     hideAllScreens();
     document.getElementById('pay-screen').style.display = 'flex';
     document.getElementById('tap-bar').classList.add('active');
-    document.getElementById('pay-amount').innerText = `$${(total || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    let finalAmount = rate > 0 ? currentTotal * (1 + rate) : currentTotal;
+    document.getElementById('pay-amount').innerText = `$${finalAmount.toFixed(2)}`;
+  }
+
+  function showSignatureScreen() {
+    hideAllScreens();
+    document.getElementById('signature-screen').style.display = 'flex';
+    document.getElementById('tap-bar').classList.remove('active');
+    initCanvas();
   }
 
   function showApproved() {
@@ -314,10 +279,9 @@
     document.getElementById('tap-bar').classList.remove('active');
 
     setTimeout(() => {
-      hideAllScreens();
-      document.getElementById('display-screen').style.display = 'flex';
+      showDisplayScreen();
       document.getElementById('total-val').innerText = '$0.00';
-    }, 2200);
+    }, 2500);
   }
 
   function showDeclined() {
@@ -326,17 +290,55 @@
     document.getElementById('tap-bar').classList.remove('active');
 
     setTimeout(() => {
-      hideAllScreens();
-      document.getElementById('display-screen').style.display = 'flex';
+      showDisplayScreen();
     }, 2500);
   }
 
   function hideAllScreens() {
-    ['display-screen', 'pay-screen', 'approved-screen', 'declined-screen'].forEach(id => {
+    ['display-screen', 'tip-screen', 'pay-screen', 'signature-screen', 'approved-screen', 'declined-screen'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
   }
+
+  // Canvas Drawing for Signature Pad
+  let canvas, ctx, drawing = false;
+  function initCanvas() {
+    canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    canvas.onmousedown = startDraw;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = endDraw;
+    
+    canvas.ontouchstart = (e) => { e.preventDefault(); startDraw(e.touches[0]); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); draw(e.touches[0]); };
+    canvas.ontouchend = endDraw;
+  }
+
+  function startDraw(e) {
+    drawing = true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  }
+
+  function draw(e) {
+    if(!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+  }
+
+  function endDraw() { drawing = false; }
+  function clearSignature() { if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  function submitSignature() { showApproved(); }
 </script>
 </body>
 </html>
