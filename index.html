@@ -20,8 +20,8 @@
   body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
   /* Top bezel — plain, no branding */
-  .hardware-bezel { height: 44px; background: #000; display: flex; align-items: center; justify-content: center; }
-  .contactless-icon { height: 26px; width: auto; opacity: 0.85; display: none; }
+  .hardware-bezel { height: 60px; background: #000; display: flex; align-items: center; justify-content: center; }
+  .contactless-icon { height: 40px; width: auto; opacity: 0.85; display: none; }
 
   /* Connection screen */
   #connect-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
@@ -34,7 +34,7 @@
   .connect-btn:hover { opacity: 0.9; }
 
   /* Main app */
-  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 44px); position: relative; }
+  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 60px); position: relative; }
 
   /* Idle screen — logo + wordmark, nothing else */
   #idle-screen { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.35s ease; }
@@ -62,7 +62,7 @@
 
   /* Payment / result screen — total centered, arrow + tap below it */
   .auth-screen { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; text-align: center; }
-  .auth-total { font-size: 48px; font-weight: 700; letter-spacing: -1px; }
+  .auth-total { font-size: 46px; font-weight: 900; letter-spacing: -1px; font-family: 'Arial Black', 'Helvetica Neue', Arial, sans-serif; }
   .tap-indicator { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; align-items: center; }
   .pointing-arrow { width: 28px; height: 28px; fill: var(--accent); margin-bottom: 6px; animation: pointUp 1.2s infinite ease-in-out; }
   @keyframes pointUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
@@ -178,6 +178,13 @@
     });
   }
 
+  const TAP_DURATION = 1000;      // how long the "Tap" prompt shows before authorizing
+  const MIN_AUTHORIZING = 1200;   // minimum time the spinner stays up, even if the result already arrived
+
+  let paymentPhase = 'idle';      // 'tap' | 'authorizing' | 'result'
+  let phaseStartTime = 0;
+  let pendingResult = null;       // 'approve' | 'decline', if it arrived before we were ready to show it
+
   function resetResultScreen() {
     document.getElementById('pay-total').style.display = 'none';
     document.getElementById('tap-indicator').style.display = 'none';
@@ -186,6 +193,8 @@
     document.getElementById('result-sub').style.display = 'none';
     document.getElementById('auth-icon-container').innerHTML = '';
     document.getElementById('bezel-icon').style.display = 'none';
+    paymentPhase = 'idle';
+    pendingResult = null;
   }
 
   function handleCashierData(data) {
@@ -220,10 +229,42 @@
       tipScreen.style.display = 'flex';
     }
     else if (data.type === 'FORCE_APPROVE') {
-      tipScreen.style.display = 'none';
-      resetResultScreen();
-      resultScreen.style.display = 'flex';
+      pendingResult = 'approve';
+      maybeShowResult();
+    }
+    else if (data.type === 'FORCE_DECLINE') {
+      pendingResult = 'decline';
+      maybeShowResult();
+    }
+  }
 
+  function goAuthorizing() {
+    document.getElementById('tap-indicator').style.display = 'none';
+    document.getElementById('bezel-icon').style.display = 'none';
+    document.getElementById('authorizing-block').style.display = 'flex';
+    paymentPhase = 'authorizing';
+    phaseStartTime = Date.now();
+    maybeShowResult();
+  }
+
+  function maybeShowResult() {
+    if (paymentPhase !== 'authorizing' || pendingResult === null) return;
+    const elapsed = Date.now() - phaseStartTime;
+    const remaining = Math.max(0, MIN_AUTHORIZING - elapsed);
+    setTimeout(() => {
+      if (pendingResult !== null) {
+        revealResult(pendingResult);
+        pendingResult = null;
+      }
+    }, remaining);
+  }
+
+  function revealResult(type) {
+    const resultScreen = document.getElementById('result-screen');
+    paymentPhase = 'result';
+    document.getElementById('authorizing-block').style.display = 'none';
+
+    if (type === 'approve') {
       document.getElementById('auth-icon-container').innerHTML = `
         <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--green')}" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
@@ -231,19 +272,8 @@
         </svg>
       `;
       document.getElementById('result-title').innerText = 'Approved';
-      document.getElementById('result-title').style.display = 'block';
       document.getElementById('result-sub').innerText = 'Thank you';
-      document.getElementById('result-sub').style.display = 'block';
-
-      setTimeout(() => {
-        resultScreen.style.display = 'none';
-      }, 3000);
-    }
-    else if (data.type === 'FORCE_DECLINE') {
-      tipScreen.style.display = 'none';
-      resetResultScreen();
-      resultScreen.style.display = 'flex';
-
+    } else {
       document.getElementById('auth-icon-container').innerHTML = `
         <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--red')}" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
@@ -251,14 +281,15 @@
         </svg>
       `;
       document.getElementById('result-title').innerText = 'Declined';
-      document.getElementById('result-title').style.display = 'block';
       document.getElementById('result-sub').innerText = 'Try another payment method';
-      document.getElementById('result-sub').style.display = 'block';
-
-      setTimeout(() => {
-        resultScreen.style.display = 'none';
-      }, 3000);
     }
+    document.getElementById('result-title').style.display = 'block';
+    document.getElementById('result-sub').style.display = 'block';
+
+    setTimeout(() => {
+      resultScreen.style.display = 'none';
+      paymentPhase = 'idle';
+    }, 3000);
   }
 
   function selectTip(percent) {
@@ -273,11 +304,9 @@
     document.getElementById('tap-indicator').style.display = 'flex';
     document.getElementById('bezel-icon').style.display = 'block';
 
-    setTimeout(() => {
-      document.getElementById('tap-indicator').style.display = 'none';
-      document.getElementById('bezel-icon').style.display = 'none';
-      document.getElementById('authorizing-block').style.display = 'flex';
-    }, 1600);
+    paymentPhase = 'tap';
+    phaseStartTime = Date.now();
+    setTimeout(goAuthorizing, TAP_DURATION);
   }
 </script>
 </body>
