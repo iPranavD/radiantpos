@@ -22,7 +22,7 @@
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  /* Hardware Top Bar: Contactless logo with glowing indicator light and tap arrow */
+  /* Hardware Top Bar: Contactless logo with glowing indicator light */
   .hardware-bezel { height: 64px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-bottom: 1px solid #1a1a1a; padding-top: 6px; }
   .contactless-container { display: flex; align-items: center; gap: 10px; }
   .contactless-icon { width: 24px; height: 24px; fill: #ffffff; }
@@ -59,13 +59,15 @@
   .calc-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 6px; }
   .total-row { display: flex; justify-content: space-between; font-size: 26px; font-weight: 800; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 14px; }
 
-  /* Tip & Authorization Blue Overlay Screens */
-  .overlay-screen { position: absolute; inset: 0; background: #000000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; }
-  .auth-screen { position: absolute; inset: 0; background: var(--square-blue); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; padding: 30px; text-align: center; color: #ffffff; }
+  /* Tip Selection Screen (Now with Square Blue Background as requested!) */
+  .overlay-screen { position: absolute; inset: 0; background: var(--square-blue); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; color: #ffffff; }
   
   .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 360px; margin-top: 20px; }
-  .tip-btn { padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; }
-  .tip-btn:hover { border-color: var(--accent); }
+  .tip-btn { padding: 20px; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; font-size: 18px; font-weight: 700; cursor: pointer; }
+  .tip-btn:hover { background: rgba(0, 0, 0, 0.4); border-color: #ffffff; }
+  
+  /* Authorization & Result Screen (Square Blue) */
+  .auth-screen { position: absolute; inset: 0; background: var(--square-blue); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; padding: 30px; text-align: center; color: #ffffff; }
   
   .svg-icon-large { width: 72px; height: 72px; margin-bottom: 20px; fill: currentColor; }
   
@@ -122,8 +124,8 @@
     </div>
 
     <div class="overlay-screen" id="tip-screen">
-      <h2 style="margin-bottom:6px; font-size:24px;">Leave a Tip?</h2>
-      <div style="color:var(--text-muted); font-size:15px; margin-bottom:12px;" id="tip-total-label">Total: $0.00</div>
+      <h2 style="margin-bottom:6px; font-size:26px; font-weight:700;">Leave a Tip?</h2>
+      <div style="opacity:0.85; font-size:16px; margin-bottom:16px;" id="tip-total-label">Total: $0.00</div>
       <div class="tip-grid">
         <button class="tip-btn" onclick="selectTip(0)">No Tip</button>
         <button class="tip-btn" onclick="selectTip(0.10)">10%</button>
