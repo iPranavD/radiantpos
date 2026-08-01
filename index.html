@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radiant POS Register — Cashier</title>
+<title>Square Terminal — Customer Display</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
   :root {
     --bg: #0f0f11;
     --panel: #18181b;
     --card: #27272a;
-    --card-hover: #3f3f46;
     --accent: #ffffff;
     --accent-text: #000000;
     --green: #10b981;
@@ -21,292 +20,42 @@
   }
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  
-  .header { height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-  .brand { font-weight: 700; font-size: 16px; letter-spacing: -0.5px; }
-  .code-badge { background: #27272a; border: 1px solid #3f3f46; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 15px; color: #fbbf24; }
-  .status { font-size: 13px; font-weight: 600; color: var(--red); }
-  .status.connected { color: var(--green); }
 
-  .workspace { flex: 1; display: flex; overflow: hidden; }
+  /* Connection screen */
+  #connect-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+  .connect-box { background: var(--panel); border: 1px solid var(--border); padding: 30px; border-radius: 16px; width: 100%; max-width: 380px; }
+  input { width: 100%; padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 18px; text-align: center; margin-bottom: 14px; outline: none; font-family: monospace; letter-spacing: 2px; }
+  .connect-btn { width: 100%; padding: 14px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
 
-  .catalog-container { flex: 2.2; display: flex; background: var(--bg); overflow: hidden; }
-  .categories { width: 160px; border-right: 1px solid var(--border); padding: 10px; display: flex; flex-direction: column; gap: 8px; background: var(--panel); overflow-y: auto; }
-  .cat-btn { background: transparent; border: none; color: var(--text-muted); text-align: left; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-  .cat-btn.active, .cat-btn:hover { background: var(--card); color: var(--text); }
-  
-  .grid { flex: 1; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: 135px; gap: 12px; overflow-y: auto; }
-  .item-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: border-color 0.15s; position: relative; }
-  .item-card:hover { border-color: var(--card-hover); }
-  .item-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
-  .item-spec { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .item-price-row { display: flex; justify-content: space-between; align-items: center; }
-  .item-price { font-weight: 700; font-size: 14px; color: var(--text); }
-  .renew-tag { background: rgba(228, 20, 43, 0.2); color: var(--red); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+  /* Main Terminal UI (Hidden until connected) */
+  #terminal-app { display: none; flex: 1; flex-direction: column; height: 100vh; position: relative; }
 
-  .ticket-container { flex: 1; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
-  .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .ticket-list { flex: 1; overflow-y: auto; padding: 16px; }
-  .ticket-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
-  .remove-btn { color: var(--red); background: none; border: none; font-weight: bold; cursor: pointer; margin-left: 8px; }
-  
-  .ticket-footer { padding: 20px; border-top: 1px solid var(--border); background: #000; }
+  /* 1. Idle/Attract Screen (When cart total is 0) */
+  #idle-screen { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; text-align: center; padding: 20px; transition: opacity 0.3s ease; }
+  .square-logo { width: 64px; height: 64px; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(255,255,255,0.1); }
+  .square-inner { width: 28px; height: 28px; border: 4px solid #000; border-radius: 4px; }
+  .idle-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .idle-sub { font-size: 15px; color: var(--text-muted); }
+
+  /* 2. Itemized Bill View */
+  .bill-container { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+  .bill-header { padding: 20px; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 700; background: #000; display: flex; justify-content: space-between; align-items: center; }
+  .bill-items { flex: 1; overflow-y: auto; padding: 20px; }
+  .bill-row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 15px; }
+  .bill-footer { padding: 24px; border-top: 1px solid var(--border); background: var(--panel); }
   .calc-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 6px; }
-  .total-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: 800; margin-bottom: 16px; border-top: 1px solid var(--border); padding-top: 10px; }
-  
-  .charge-btn { width: 100%; padding: 16px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
-  .charge-btn:disabled { background: #27272a; color: #52525b; cursor: not-allowed; }
+  .total-row { display: flex; justify-content: space-between; font-size: 26px; font-weight: 800; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 14px; }
 
-  .payment-actions { display: none; gap: 10px; }
-  .accept-btn { flex: 1; padding: 14px; background: var(--green); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
-  .decline-btn { flex: 1; padding: 14px; background: var(--red); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
+  /* Tip & Approval Overlays */
+  .overlay-screen { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; }
+  .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 360px; margin-top: 20px; }
+  .tip-btn { padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; }
+  .tip-btn:hover { border-color: var(--accent); }
+  
+  .status-icon { font-size: 64px; margin-bottom: 16px; }
 </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="brand">Radiant POS Register</div>
-    <div>Customer Terminal Code: <span class="code-badge" id="peer-id">Connecting...</span></div>
-    <div class="status" id="status-badge">● Disconnected</div>
-  </div>
-
-  <div class="workspace">
-    <div class="catalog-container">
-      <div class="categories" id="cat-list"></div>
-      <div class="grid" id="product-grid"></div>
-    </div>
-
-    <div class="ticket-container">
-      <div class="ticket-header">
-        <h3 style="margin:0;" id="ticket-title">Current Sale</h3>
-        <button style="background:none; border:none; color:var(--red); cursor:pointer; font-size: 12px; font-weight: 600;" onclick="clearCart()">Clear All</button>
-      </div>
-
-      <div class="ticket-list" id="ticket-list">
-        <div style="color: var(--text-muted); text-align: center; margin-top: 40px;">Select items from Radiant Catalog</div>
-      </div>
-
-      <div class="ticket-footer">
-        <div class="calc-row">
-          <span>Subtotal</span>
-          <span id="subtotal-val">$0.00</span>
-        </div>
-        <div class="calc-row">
-          <span>Tax (8.875%)</span>
-          <span id="tax-val">$0.00</span>
-        </div>
-        <div class="total-row">
-          <span>Total</span>
-          <span id="total-val">$0.00</span>
-        </div>
-        
-        <button class="charge-btn" id="charge-btn" disabled onclick="sendPaymentPrompt()">Charge Customer Terminal</button>
-        
-        <div class="payment-actions" id="payment-controls">
-          <button class="accept-btn" onclick="cashierApprove()">✅ Accept</button>
-          <button class="decline-btn" onclick="cashierDecline()">❌ Decline</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<script>
-  const TAX_RATE = 0.08875;
-
-  // Complete catalog featuring all items from Radiant & the requested screenshot
-  const products = [
-    { id: "P-SB3-13", name: "Surface Book 3 — 13\"", spec: "13.5\" PixelSense touchscreen, detachable tablet, Intel Core, GTX 1650.", price: 999, group: "Laptop / 2-in-1", renew: true },
-    { id: "P-SB3-15", name: "Surface Book 3 — 15\"", spec: "15\" PixelSense touchscreen, detachable tablet, Intel Core i7, GTX 1660 Ti.", price: 1399, group: "Laptop / 2-in-1", renew: true },
-    { id: "P-NSW", name: "Nintendo Switch (2017) + Games", spec: "Original Switch console, dock, Joy-Cons, and included game bundle.", price: 220, group: "Console", renew: true },
-    { id: "P-LUM640", name: "Microsoft Lumia 640", spec: "5\" display, Windows Phone 8.1 / Windows 10 Mobile, Snapdragon 200, LTE.", price: 25, group: "Phone", renew: true },
-    { id: "P-LUM650", name: "Microsoft Lumia 650", spec: "5\" AMOLED display, Windows 10 Mobile, Snapdragon 212, aluminum frame.", price: 35, group: "Phone", renew: true },
-    { id: "P-LUM950", name: "Microsoft Lumia 950", spec: "5.2\" QHD AMOLED, Windows 10 Mobile, Snapdragon 808, 20MP PureView camera.", price: 85, group: "Phone", renew: true },
-    { id: "P-LUM830", name: "Microsoft Lumia 830", spec: "5\" display, Windows Phone 8.1, PureView 10MP OIS camera, aluminum frame.", price: 45, group: "Phone", renew: true }
-  ];
-
-  const groups = ["All", "Laptop / 2-in-1", "Console", "Phone"];
-  let activeGroup = "All";
-  let cart = [];
-  let peer, conn;
-
-  const code = Math.floor(1000 + Math.random() * 9000).toString();
-
-  function initPeer() {
-    peer = new Peer("sq-" + code, {
-      debug: 1,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
-    });
-
-    peer.on('open', id => {
-      document.getElementById('peer-id').innerText = code;
-    });
-
-    peer.on('connection', connection => {
-      conn = connection;
-      
-      conn.on('open', () => {
-        updateConnectionStatus(true);
-        const { subtotal, tax, total } = getCalculations();
-        sendData({ type: 'SYNC_CART', cart, subtotal, tax, total });
-      });
-
-      conn.on('data', data => {
-        if (data.type === 'PING') {
-          sendData({ type: 'PONG' });
-        }
-      });
-
-      conn.on('close', () => updateConnectionStatus(false));
-      conn.on('error', () => updateConnectionStatus(false));
-    });
-
-    peer.on('error', err => {
-      console.warn('Peer error:', err);
-    });
-  }
-
-  function updateConnectionStatus(isConnected) {
-    const badge = document.getElementById('status-badge');
-    const chargeBtn = document.getElementById('charge-btn');
-    if (isConnected) {
-      badge.innerText = '● Customer Connected';
-      badge.classList.add('connected');
-      chargeBtn.disabled = cart.length === 0;
-    } else {
-      badge.innerText = '● Disconnected';
-      badge.classList.remove('connected');
-      chargeBtn.disabled = true;
-    }
-  }
-
-  function sendData(data) {
-    if (conn && conn.open) {
-      try { conn.send(data); } catch (e) { console.error('Send error:', e); }
-    }
-  }
-
-  function getCalculations() {
-    const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
-    return { subtotal, tax, total };
-  }
-
-  function renderCategories() {
-    document.getElementById('cat-list').innerHTML = groups.map(g => 
-      `<button class="cat-btn ${g === activeGroup ? 'active' : ''}" onclick="filterCat('${g}')">${g}</button>`
-    ).join('');
-  }
-
-  function filterCat(g) {
-    activeGroup = g;
-    renderCategories();
-    renderProducts();
-  }
-
-  function renderProducts() {
-    const list = activeGroup === "All" ? products : products.filter(p => p.group === activeGroup);
-    document.getElementById('product-grid').innerHTML = list.map(p => `
-      <div class="item-card" onclick="addToCart('${p.id}')">
-        <div>
-          <div class="item-name">${p.name}</div>
-          <div class="item-spec">${p.spec}</div>
-        </div>
-        <div class="item-price-row">
-          <div class="item-price">$${p.price}</div>
-          ${p.renew ? '<span class="renew-tag">Renew</span>' : ''}
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function addToCart(id) {
-    cart.push(products.find(p => p.id === id));
-    updateCartUI();
-  }
-
-  function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCartUI();
-  }
-
-  function clearCart() {
-    cart = [];
-    resetPaymentUI();
-    updateCartUI();
-  }
-
-  function updateCartUI() {
-    const list = document.getElementById('ticket-list');
-    const subtotalEl = document.getElementById('subtotal-val');
-    const taxEl = document.getElementById('tax-val');
-    const totalEl = document.getElementById('total-val');
-    const btn = document.getElementById('charge-btn');
-
-    const { subtotal, tax, total } = getCalculations();
-
-    if (cart.length === 0) {
-      list.innerHTML = `<div style="color: var(--text-muted); text-align: center; margin-top: 40px;">Select items from Catalog</div>`;
-      subtotalEl.innerText = '$0.00';
-      taxEl.innerText = '$0.00';
-      totalEl.innerText = '$0.00';
-      btn.disabled = true;
-    } else {
-      list.innerHTML = cart.map((item, i) => `
-        <div class="ticket-row">
-          <span>${item.name} ${item.renew ? '<span style="color:var(--red); font-size:10px;">(Renew)</span>' : ''}</span>
-          <div>
-            <strong>$${item.price}</strong>
-            <button class="remove-btn" onclick="removeFromCart(${i})">✕</button>
-          </div>
-        </div>
-      `).join('');
-      subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
-      taxEl.innerText = `$${tax.toFixed(2)}`;
-      totalEl.innerText = `$${total.toFixed(2)}`;
-      btn.disabled = !(conn && conn.open);
-    }
-
-    sendData({ type: 'SYNC_CART', cart, subtotal, tax, total });
-  }
-
-  function sendPaymentPrompt() {
-    const { total } = getCalculations();
-    sendData({ type: 'START_TIP_SCREEN', total });
-    
-    document.getElementById('charge-btn').style.display = 'none';
-    document.getElementById('payment-controls').style.display = 'flex';
-    document.getElementById('ticket-title').innerText = 'Selecting Tip...';
-  }
-
-  function cashierApprove() {
-    sendData({ type: 'FORCE_APPROVE' });
-    alert('✅ Payment Approved!');
-    cart = [];
-    resetPaymentUI();
-    updateCartUI();
-  }
-
-  function cashierDecline() {
-    sendData({ type: 'FORCE_DECLINE' });
-    alert('❌ Payment Declined.');
-    resetPaymentUI();
-  }
-
-  function resetPaymentUI() {
-    document.getElementById('charge-btn').style.display = 'block';
-    document.getElementById('payment-controls').style.display = 'none';
-    document.getElementById('ticket-title').innerText = 'Current Sale';
-  }
-
-  renderCategories();
-  renderProducts();
-  initPeer();
-</script>
-</body>
-</html>
+  <div id="connect-screen">
+    <div class="
