@@ -58,4 +58,165 @@
 <body>
 
   <div id="connect-screen">
-    <div class="
+    <div class="connect-box">
+      <div style="font-weight:700; font-size:18px; margin-bottom:6px;">Square Customer Terminal</div>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Enter the 4-digit code shown on the cashier screen</div>
+      <input type="text" id="code-input" placeholder="0000" maxlength="4">
+      <button class="connect-btn" onclick="connectToCashier()">Connect Terminal</button>
+    </div>
+  </div>
+
+  <div id="terminal-app">
+    
+    <div id="idle-screen">
+      <div class="square-logo">
+        <div class="square-inner"></div>
+      </div>
+      <div class="idle-title">Radiant POS</div>
+      <div class="idle-sub">Ready for next purchase...</div>
+    </div>
+
+    <div class="bill-container">
+      <div class="bill-header">
+        <span>Your Order</span>
+        <span id="conn-indicator" style="font-size:12px; color:var(--green);">● Connected</span>
+      </div>
+      <div class="bill-items" id="bill-items">
+        </div>
+      <div class="bill-footer">
+        <div class="calc-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+        <div class="calc-row"><span>Tax (8.875%)</span><span id="tax">$0.00</span></div>
+        <div class="total-row"><span>Total</span><span id="total">$0.00</span></div>
+      </div>
+    </div>
+
+    <div class="overlay-screen" id="tip-screen">
+      <h2 style="margin-bottom:6px;">Leave a Tip?</h2>
+      <div style="color:var(--text-muted); font-size:14px; margin-bottom:10px;" id="tip-total-label">Total: $0.00</div>
+      <div class="tip-grid">
+        <button class="tip-btn" onclick="selectTip(0)">No Tip</button>
+        <button class="tip-btn" onclick="selectTip(0.10)">10%</button>
+        <button class="tip-btn" onclick="selectTip(0.15)">15%</button>
+        <button class="tip-btn" onclick="selectTip(0.20)">20%</button>
+      </div>
+    </div>
+
+    <div class="overlay-screen" id="result-screen">
+      <div class="status-icon" id="result-icon">⏳</div>
+      <h2 id="result-title">Processing Payment...</h2>
+      <div style="color:var(--text-muted); font-size:14px; margin-top:8px;" id="result-sub">Please wait for authorization</div>
+    </div>
+
+  </div>
+
+<script>
+  let peer, conn;
+  let currentTotal = 0;
+
+  function connectToCashier() {
+    const code = document.getElementById('code-input').value.trim();
+    if (code.length !== 4) {
+      alert('Please enter a valid 4-digit code.');
+      return;
+    }
+
+    peer = new Peer({
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
+
+    peer.on('open', () => {
+      conn = peer.connect("sq-" + code);
+
+      conn.on('open', () => {
+        document.getElementById('connect-screen').style.display = 'none';
+        document.getElementById('terminal-app').style.display = 'flex';
+      });
+
+      conn.on('data', data => {
+        handleCashierData(data);
+      });
+
+      conn.on('error', err => {
+        alert('Connection error. Check code and try again.');
+      });
+    });
+  }
+
+  function handleCashierData(data) {
+    const idleScreen = document.getElementById('idle-screen');
+    const tipScreen = document.getElementById('tip-screen');
+    const resultScreen = document.getElementById('result-screen');
+
+    if (data.type === 'SYNC_CART') {
+      currentTotal = data.total;
+      
+      // Update itemized list
+      const listEl = document.getElementById('bill-items');
+      if (!data.cart || data.cart.length === 0) {
+        listEl.innerHTML = `<div style="color:var(--text-muted); text-align:center; margin-top:60px;">Your items will appear here as the cashier scans them.</div>`;
+        idleScreen.style.opacity = '1';
+        idleScreen.style.pointerEvents = 'auto';
+      } else {
+        idleScreen.style.opacity = '0';
+        idleScreen.style.pointerEvents = 'none';
+        
+        listEl.innerHTML = data.cart.map(item => `
+          <div class="bill-row">
+            <div>
+              <div style="font-weight:600;">${item.name}</div>
+              <div style="font-size:11px; color:var(--text-muted);">${item.spec || ''}</div>
+            </div>
+            <div style="font-weight:600;">$${item.price}</div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('subtotal').innerText = `$${data.subtotal.toFixed(2)}`;
+      document.getElementById('tax').innerText = `$${data.tax.toFixed(2)}`;
+      document.getElementById('total').innerText = `$${data.total.toFixed(2)}`;
+    } 
+    else if (data.type === 'START_TIP_SCREEN') {
+      document.getElementById('tip-total-label').innerText = `Total: $${data.total.toFixed(2)}`;
+      tipScreen.style.display = 'flex';
+    } 
+    else if (data.type === 'FORCE_APPROVE') {
+      tipScreen.style.display = 'none';
+      resultScreen.style.display = 'flex';
+      document.getElementById('result-icon').innerText = '✅';
+      document.getElementById('result-title').innerText = 'Payment Approved';
+      document.getElementById('result-sub').innerText = 'Thank you for your purchase!';
+      
+      setTimeout(() => {
+        resultScreen.style.display = 'none';
+      }, 3500);
+    } 
+    else if (data.type === 'FORCE_DECLINE') {
+      tipScreen.style.display = 'none';
+      resultScreen.style.display = 'flex';
+      document.getElementById('result-icon').innerText = '❌';
+      document.getElementById('result-title').innerText = 'Payment Declined';
+      document.getElementById('result-sub').innerText = 'Please try another payment method.';
+      
+      setTimeout(() => {
+        resultScreen.style.display = 'none';
+      }, 3500);
+    }
+  }
+
+  function selectTip(percent) {
+    const finalAmount = currentTotal * (1 + percent);
+    document.getElementById('tip-screen').style.display = 'none';
+    const resultScreen = document.getElementById('result-screen');
+    resultScreen.style.display = 'flex';
+    document.getElementById('result-icon').innerText = '💳';
+    document.getElementById('result-title').innerText = 'Insert or Tap Card...';
+    document.getElementById('result-sub').innerText = `Amount to pay: $${finalAmount.toFixed(2)}`;
+  }
+</script>
+</body>
+</html>
