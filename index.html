@@ -22,16 +22,17 @@
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  /* Hardware Top Bar (Square Reader contactless bezel look with contactless waves and tap arrow) */
-  .hardware-bezel { height: 60px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-bottom: 1px solid #1a1a1a; padding-top: 6px; }
-  .contactless-container { display: flex; align-items: center; gap: 8px; }
+  /* Hardware Top Bar: Contactless logo with glowing indicator light and tap arrow */
+  .hardware-bezel { height: 64px; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-bottom: 1px solid #1a1a1a; padding-top: 6px; }
+  .contactless-container { display: flex; align-items: center; gap: 10px; }
   .contactless-icon { width: 24px; height: 24px; fill: #ffffff; }
-  .tap-arrow-icon { width: 16px; height: 16px; fill: #3b82f6; animation: bounceArrow 1.5s infinite; }
+  
+  /* Glowing contactless payment light indicator */
+  .reader-light { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981, 0 0 20px #10b981; animation: pulseLight 2s infinite; }
+  @keyframes pulseLight { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-  @keyframes bounceArrow {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(3px); }
-  }
+  .tap-arrow-icon { width: 16px; height: 16px; fill: #3b82f6; animation: bounceArrow 1.5s infinite; }
+  @keyframes bounceArrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 
   /* Connection screen */
   #connect-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
@@ -40,7 +41,7 @@
   .connect-btn { width: 100%; padding: 14px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
 
   /* Main Terminal App */
-  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 60px); position: relative; }
+  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 64px); position: relative; }
 
   /* 1. Idle/Attract Screen (Pure Black with Logo) */
   #idle-screen { position: absolute; inset: 0; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; text-align: center; padding: 20px; transition: opacity 0.3s ease; }
@@ -67,6 +68,10 @@
   .tip-btn:hover { border-color: var(--accent); }
   
   .svg-icon-large { width: 72px; height: 72px; margin-bottom: 20px; fill: currentColor; }
+  
+  /* Arrow pointing toward top bezel on blue screen */
+  .pointing-arrow { width: 36px; height: 36px; fill: #ffffff; margin-bottom: 12px; animation: pointUp 1.2s infinite ease-in-out; }
+  @keyframes pointUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 </style>
 </head>
 <body>
@@ -76,6 +81,7 @@
       <svg class="contactless-icon" viewBox="0 0 24 24">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v6h2zm0 8h-2v2h2z"/>
       </svg>
+      <div class="reader-light"></div>
       <svg class="tap-arrow-icon" viewBox="0 0 24 24">
         <path d="M7 10l5 5 5-5z"/>
       </svg>
@@ -128,10 +134,10 @@
 
     <div class="auth-screen" id="result-screen">
       <div id="auth-icon-container">
-        <svg class="svg-icon-large" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+        <svg class="pointing-arrow" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
       </div>
       <h2 id="result-title" style="font-size:28px; margin:0 0 8px 0;">Processing Payment...</h2>
-      <div style="font-size:16px; opacity:0.85;" id="result-sub">Please insert, swipe, or tap card</div>
+      <div style="font-size:16px; opacity:0.85;" id="result-sub">Tap card or device at the top reader</div>
     </div>
 
   </div>
@@ -247,9 +253,9 @@
     resultScreen.style.display = 'flex';
     
     document.getElementById('auth-icon-container').innerHTML = `
-      <svg class="svg-icon-large" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+      <svg class="pointing-arrow" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
     `;
-    document.getElementById('result-title').innerText = 'Insert, Tap, or Swipe';
+    document.getElementById('result-title').innerText = 'Tap, Insert, or Swipe';
     document.getElementById('result-sub').innerText = `Amount to pay: $${finalAmount.toFixed(2)}`;
   }
 </script>
