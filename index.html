@@ -3,69 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Square Terminal — Customer Display</title>
+<title>Radiant — Customer Display</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
   :root {
     --bg: #000000;
-    --panel: #18181b;
-    --card: #27272a;
-    --accent: #ffffff;
-    --accent-text: #000000;
-    --green: #10b981;
-    --red: #E4142B;
-    --square-blue: #0066FF;
-    --text: #f4f4f5;
-    --text-muted: #a1a1aa;
-    --border: #27272a;
+    --panel: #0a0a0a;
+    --line: #1f1f1f;
+    --text: #ffffff;
+    --text-muted: #7a7a7a;
+    --accent: #4d6dff;
+    --green: #16c784;
+    --red: #ff4d4d;
   }
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  body { margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  /* Hardware Top Bar: Clean bezel with ONLY the contactless waves icon */
-  .hardware-bezel { height: 48px; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #1a1a1a; }
-  .contactless-icon { width: 22px; height: 22px; fill: #ffffff; }
+  /* Top bezel — plain, no branding */
+  .hardware-bezel { height: 44px; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--line); }
+  .contactless-icon { width: 18px; height: 18px; fill: #ffffff; opacity: 0.6; }
 
   /* Connection screen */
-  #connect-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-  .connect-box { background: var(--panel); border: 1px solid var(--border); padding: 30px; border-radius: 16px; width: 100%; max-width: 380px; }
-  input { width: 100%; padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 18px; text-align: center; margin-bottom: 14px; outline: none; font-family: monospace; letter-spacing: 2px; }
-  .connect-btn { width: 100%; padding: 14px; background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  #connect-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+  .connect-box { width: 100%; max-width: 340px; }
+  .connect-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .connect-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  input { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 20px; text-align: center; margin-bottom: 14px; outline: none; font-family: monospace; letter-spacing: 4px; }
+  input:focus { border-color: var(--accent); }
+  .connect-btn { width: 100%; padding: 14px; background: var(--text); color: #000; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .connect-btn:hover { opacity: 0.9; }
 
-  /* Main Terminal App */
-  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 48px); position: relative; }
+  /* Main app */
+  #terminal-app { display: none; flex: 1; flex-direction: column; height: calc(100vh - 44px); position: relative; }
 
-  /* 1. Idle/Attract Screen (Pure Black with Official Square Logo) */
-  #idle-screen { position: absolute; inset: 0; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; text-align: center; padding: 20px; transition: opacity 0.3s ease; }
-  .square-logo { width: 64px; height: 64px; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(255,255,255,0.05); }
-  .square-inner { width: 28px; height: 28px; border: 4px solid #000; border-radius: 4px; }
-  .idle-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
-  .idle-sub { font-size: 15px; color: var(--text-muted); }
+  /* Idle screen — logo + wordmark, nothing else */
+  #idle-screen { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.35s ease; }
+  .logo-mark { width: 52px; height: 52px; margin-bottom: 16px; }
+  .wordmark { font-size: 15px; font-weight: 700; letter-spacing: 6px; color: #fff; text-transform: uppercase; }
 
-  /* 2. Itemized Bill View */
-  .bill-container { flex: 1; display: flex; flex-direction: column; background: #000000; overflow: hidden; }
-  .bill-header { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; background: #000; display: flex; justify-content: space-between; align-items: center; }
-  .bill-items { flex: 1; overflow-y: auto; padding: 20px; }
-  .bill-row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 15px; }
-  .bill-footer { padding: 24px; border-top: 1px solid var(--border); background: var(--panel); }
-  .calc-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 6px; }
-  .total-row { display: flex; justify-content: space-between; font-size: 26px; font-weight: 800; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 14px; }
+  /* Bill view — total up top, items below, minimal */
+  .bill-container { flex: 1; display: flex; flex-direction: column; background: #000; overflow: hidden; }
+  .bill-total-block { padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid var(--line); }
+  .bill-total-label { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .bill-total-amount { font-size: 44px; font-weight: 700; letter-spacing: -1px; }
+  .bill-items { flex: 1; overflow-y: auto; padding: 8px 24px; }
+  .bill-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .bill-row:last-child { border-bottom: none; }
+  .bill-row-name { font-weight: 500; }
+  .bill-row-price { font-weight: 600; color: var(--text); }
+  .bill-empty { color: var(--text-muted); text-align: center; margin-top: 60px; font-size: 14px; }
 
-  /* Tip Selection Screen (Square Blue Background) */
-  .overlay-screen { position: absolute; inset: 0; background: var(--square-blue); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; color: #ffffff; }
-  
-  .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 360px; margin-top: 20px; }
-  .tip-btn { padding: 20px; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; font-size: 18px; font-weight: 700; cursor: pointer; }
-  .tip-btn:hover { background: rgba(0, 0, 0, 0.4); border-color: #ffffff; }
-  
-  /* Authorization & Result Screen (Square Blue) */
-  .auth-screen { position: absolute; inset: 0; background: var(--square-blue); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; padding: 30px; text-align: center; color: #ffffff; }
-  
-  .svg-icon-large { width: 72px; height: 72px; margin-bottom: 20px; fill: currentColor; }
-  
-  /* Arrow pointing toward top bezel on blue screen */
-  .pointing-arrow { width: 36px; height: 36px; fill: #ffffff; margin-bottom: 12px; animation: pointUp 1.2s infinite ease-in-out; }
-  @keyframes pointUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  /* Tip screen */
+  .overlay-screen { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; }
+  .tip-heading { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .tip-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+  .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
+  .tip-btn { padding: 18px; background: transparent; border: 1px solid var(--line); border-radius: 10px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .tip-btn:hover { border-color: var(--accent); background: rgba(77,109,255,0.08); }
+
+  /* Payment / result screen — total centered, arrow + tap below it */
+  .auth-screen { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; text-align: center; }
+  .auth-total { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 28px; }
+  .pointing-arrow { width: 28px; height: 28px; fill: var(--accent); margin-bottom: 6px; animation: pointUp 1.2s infinite ease-in-out; }
+  @keyframes pointUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .auth-caption { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+  .result-icon { width: 56px; height: 56px; margin-bottom: 20px; }
+  .result-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .result-sub { font-size: 14px; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -78,41 +83,38 @@
 
   <div id="connect-screen">
     <div class="connect-box">
-      <div style="font-weight:700; font-size:18px; margin-bottom:6px;">Square Terminal Display</div>
-      <div style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Enter the 4-digit code shown on cashier screen</div>
+      <div class="connect-title">Radiant Display</div>
+      <div class="connect-sub">Enter the 4-digit code shown on the register</div>
       <input type="text" id="code-input" placeholder="0000" maxlength="4">
-      <button class="connect-btn" onclick="connectToCashier()">Connect Terminal</button>
+      <button class="connect-btn" onclick="connectToCashier()">Connect</button>
     </div>
   </div>
 
   <div id="terminal-app">
-    
+
     <div id="idle-screen">
-      <div class="square-logo">
-        <div class="square-inner"></div>
-      </div>
-      <div class="idle-title">Radiant POS</div>
-      <div class="idle-sub">Ready for next purchase...</div>
+      <svg class="logo-mark" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 44 L6 6 L44 6" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="square"/>
+        <text x="20" y="47" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="38" font-weight="800" fill="#E4142B">R</text>
+      </svg>
+      <div class="wordmark">RADIANT</div>
     </div>
 
     <div class="bill-container">
-      <div class="bill-header">
-        <span>Your Order</span>
-        <span id="conn-indicator" style="font-size:12px; color:var(--green);">● Connected</span>
+      <div class="bill-total-block">
+        <div class="bill-total-label">Total</div>
+        <div class="bill-total-amount" id="total">$0.00</div>
       </div>
-      <div class="bill-items" id="bill-items"></div>
-      <div class="bill-footer">
-        <div class="calc-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
-        <div class="calc-row"><span>Tax (8.875%)</span><span id="tax">$0.00</span></div>
-        <div class="total-row"><span>Total</span><span id="total">$0.00</span></div>
+      <div class="bill-items" id="bill-items">
+        <div class="bill-empty">Your items will appear here</div>
       </div>
     </div>
 
     <div class="overlay-screen" id="tip-screen">
-      <h2 style="margin-bottom:6px; font-size:26px; font-weight:700;">Leave a Tip?</h2>
-      <div style="opacity:0.85; font-size:16px; margin-bottom:16px;" id="tip-total-label">Total: $0.00</div>
+      <div class="tip-heading">Add a tip?</div>
+      <div class="tip-sub" id="tip-total-label">Total: $0.00</div>
       <div class="tip-grid">
-        <button class="tip-btn" onclick="selectTip(0)">No Tip</button>
+        <button class="tip-btn" onclick="selectTip(0)">No tip</button>
         <button class="tip-btn" onclick="selectTip(0.10)">10%</button>
         <button class="tip-btn" onclick="selectTip(0.15)">15%</button>
         <button class="tip-btn" onclick="selectTip(0.20)">20%</button>
@@ -120,11 +122,12 @@
     </div>
 
     <div class="auth-screen" id="result-screen">
-      <div id="auth-icon-container">
-        <svg class="pointing-arrow" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
-      </div>
-      <h2 id="result-title" style="font-size:28px; margin:0 0 8px 0;">Processing Payment...</h2>
-      <div style="font-size:16px; opacity:0.85;" id="result-sub">Tap card or device at the top reader</div>
+      <div id="auth-icon-container"></div>
+      <div id="result-title" class="result-title" style="display:none;"></div>
+      <div id="result-sub" class="result-sub" style="display:none;"></div>
+      <div id="pay-total" class="auth-total" style="display:none;"></div>
+      <svg class="pointing-arrow" id="pay-arrow" viewBox="0 0 24 24" style="display:none;"><path d="M7 14l5-5 5 5z"/></svg>
+      <div class="auth-caption" id="pay-caption" style="display:none;">Tap</div>
     </div>
 
   </div>
@@ -162,9 +165,18 @@
       });
 
       conn.on('error', () => {
-        alert('Connection error. Check code and try again.');
+        alert('Connection error. Check the code and try again.');
       });
     });
+  }
+
+  function resetResultScreen() {
+    document.getElementById('pay-total').style.display = 'none';
+    document.getElementById('pay-arrow').style.display = 'none';
+    document.getElementById('pay-caption').style.display = 'none';
+    document.getElementById('result-title').style.display = 'none';
+    document.getElementById('result-sub').style.display = 'none';
+    document.getElementById('auth-icon-container').innerHTML = '';
   }
 
   function handleCashierData(data) {
@@ -174,62 +186,69 @@
 
     if (data.type === 'SYNC_CART') {
       currentTotal = data.total;
-      
+
       const listEl = document.getElementById('bill-items');
       if (!data.cart || data.cart.length === 0) {
-        listEl.innerHTML = `<div style="color:var(--text-muted); text-align:center; margin-top:60px;">Your items will appear here as the cashier scans them.</div>`;
+        listEl.innerHTML = `<div class="bill-empty">Your items will appear here</div>`;
         idleScreen.style.opacity = '1';
         idleScreen.style.pointerEvents = 'auto';
       } else {
         idleScreen.style.opacity = '0';
         idleScreen.style.pointerEvents = 'none';
-        
+
         listEl.innerHTML = data.cart.map(item => `
           <div class="bill-row">
-            <div>
-              <div style="font-weight:600;">${item.name}</div>
-              <div style="font-size:11px; color:var(--text-muted);">${item.spec || ''}</div>
-            </div>
-            <div style="font-weight:600;">$${item.price}</div>
+            <span class="bill-row-name">${item.name}</span>
+            <span class="bill-row-price">$${item.price}</span>
           </div>
         `).join('');
       }
 
-      document.getElementById('subtotal').innerText = `$${data.subtotal.toFixed(2)}`;
-      document.getElementById('tax').innerText = `$${data.tax.toFixed(2)}`;
       document.getElementById('total').innerText = `$${data.total.toFixed(2)}`;
-    } 
+    }
     else if (data.type === 'START_TIP_SCREEN') {
       document.getElementById('tip-total-label').innerText = `Total: $${data.total.toFixed(2)}`;
       tipScreen.style.display = 'flex';
-    } 
+    }
     else if (data.type === 'FORCE_APPROVE') {
       tipScreen.style.display = 'none';
+      resetResultScreen();
       resultScreen.style.display = 'flex';
-      
+
       document.getElementById('auth-icon-container').innerHTML = `
-        <svg class="svg-icon-large" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--green')}" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M8 12l2.5 2.5L16 9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       `;
-      document.getElementById('result-title').innerText = 'Payment Approved';
-      document.getElementById('result-sub').innerText = 'Thank you for your purchase!';
-      
+      document.getElementById('result-title').innerText = 'Approved';
+      document.getElementById('result-title').style.display = 'block';
+      document.getElementById('result-sub').innerText = 'Thank you';
+      document.getElementById('result-sub').style.display = 'block';
+
       setTimeout(() => {
         resultScreen.style.display = 'none';
-      }, 3500);
-    } 
+      }, 3000);
+    }
     else if (data.type === 'FORCE_DECLINE') {
       tipScreen.style.display = 'none';
+      resetResultScreen();
       resultScreen.style.display = 'flex';
-      
+
       document.getElementById('auth-icon-container').innerHTML = `
-        <svg class="svg-icon-large" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 12.42L14.41 16 12 13.59 9.59 16 7.42 14.41 9.83 12 7.42 9.59 9.59 7.42 12 9.83l2.41-2.41 2.17 2.17L14.17 12l2.42 2.42z"/></svg>
+        <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--red')}" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9 9l6 6M15 9l-6 6" stroke-linecap="round"/>
+        </svg>
       `;
-      document.getElementById('result-title').innerText = 'Payment Declined';
-      document.getElementById('result-sub').innerText = 'Please try another payment method.';
-      
+      document.getElementById('result-title').innerText = 'Declined';
+      document.getElementById('result-title').style.display = 'block';
+      document.getElementById('result-sub').innerText = 'Try another payment method';
+      document.getElementById('result-sub').style.display = 'block';
+
       setTimeout(() => {
         resultScreen.style.display = 'none';
-      }, 3500);
+      }, 3000);
     }
   }
 
@@ -237,13 +256,13 @@
     const finalAmount = currentTotal * (1 + percent);
     document.getElementById('tip-screen').style.display = 'none';
     const resultScreen = document.getElementById('result-screen');
+    resetResultScreen();
     resultScreen.style.display = 'flex';
-    
-    document.getElementById('auth-icon-container').innerHTML = `
-      <svg class="pointing-arrow" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
-    `;
-    document.getElementById('result-title').innerText = 'Tap, Insert, or Swipe';
-    document.getElementById('result-sub').innerText = `Amount to pay: $${finalAmount.toFixed(2)}`;
+
+    document.getElementById('pay-total').innerText = `$${finalAmount.toFixed(2)}`;
+    document.getElementById('pay-total').style.display = 'block';
+    document.getElementById('pay-arrow').style.display = 'block';
+    document.getElementById('pay-caption').style.display = 'block';
   }
 </script>
 </body>
