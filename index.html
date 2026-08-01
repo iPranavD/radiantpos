@@ -153,3 +153,190 @@
         <path d="M6 14a6 6 0 0 1 0-8.49"/>
         <path d="M8.83 12.17a2 2 0 0 1 0-2.83"/>
         <path d="M15.17 9.34a2 2 0 0 1 0 2.83"/>
+        <path d="M18 5.51a6 6 0 0 1 0 8.49"/>
+      </svg>
+    </div>
+
+    <div class="viewport" id="viewport-container" style="display:none;">
+
+      <div class="display-screen" id="display-screen">
+        <div class="term-header">Square Terminal</div>
+        <div class="center-total-box">
+          <div class="total-label">Total</div>
+          <div class="total-price" id="total-val">$0.00</div>
+        </div>
+        <div style="height: 24px;"></div>
+      </div>
+
+      <div class="pay-screen" id="pay-screen" style="display:none;">
+        <div>
+          <div class="pay-total-label">Pay Amount</div>
+          <div class="pay-total-amount" id="pay-amount">$0.00</div>
+        </div>
+        <div class="pay-instructions">Insert, Tap,<br>or Swipe</div>
+      </div>
+
+      <div class="approved-screen" id="approved-screen" style="display:none;">
+        <div style="font-size: 96px;">✅</div>
+        <div class="status-title">Approved</div>
+        <div class="status-sub">Thank you</div>
+      </div>
+
+      <div class="declined-screen" id="declined-screen" style="display:none;">
+        <div style="font-size: 96px;">❌</div>
+        <div class="status-title">Declined</div>
+        <div class="status-sub">Please try another card</div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  let peer, conn, pingInterval;
+
+  // Safe DOM Event listener binding so it never misses a click
+  document.addEventListener('DOMContentLoaded', () => {
+    const connectBtn = document.getElementById('connect-btn');
+    if (connectBtn) {
+      connectBtn.addEventListener('click', pairWithCashier);
+    }
+    
+    // Also allow pressing "Enter" on the keyboard input field
+    const codeInput = document.getElementById('pair-code');
+    if (codeInput) {
+      codeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') pairWithCashier();
+      });
+    }
+  });
+
+  function pairWithCashier() {
+    const codeInput = document.getElementById('pair-code');
+    const btn = document.getElementById('connect-btn');
+    
+    if (!codeInput || !btn) return;
+
+    const code = codeInput.value.trim();
+    if (code.length !== 4) {
+      alert('Please enter a valid 4-digit code.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = 'Connecting...';
+
+    if (peer) {
+      try { peer.destroy(); } catch(e) {}
+    }
+
+    peer = new Peer({
+      debug: 1,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
+
+    peer.on('open', () => {
+      conn = peer.connect('sq-' + code, { reliable: true });
+
+      conn.on('open', () => {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('tap-bar').style.display = 'flex';
+        document.getElementById('viewport-container').style.display = 'flex';
+        document.getElementById('display-screen').style.display = 'flex';
+
+        clearInterval(pingInterval);
+        pingInterval = setInterval(() => {
+          if (conn && conn.open) conn.send({ type: 'PING' });
+        }, 5000);
+      });
+
+      conn.on('data', data => {
+        if (data.type === 'SYNC_CART') {
+          renderTotalOnly(data.total);
+        }
+        else if (data.type === 'START_PAYMENT') {
+          showSquareBluePayment(data.total);
+        }
+        else if (data.type === 'FORCE_APPROVE') {
+          showApproved();
+        }
+        else if (data.type === 'FORCE_DECLINE') {
+          showDeclined();
+        }
+      });
+
+      conn.on('close', handleDisconnect);
+      conn.on('error', handleDisconnect);
+    });
+
+    peer.on('error', err => {
+      console.error(err);
+      alert('Could not connect. Ensure the Cashier screen is open and your code (' + code + ') is correct.');
+      btn.disabled = false;
+      btn.innerText = 'Connect Terminal';
+    });
+  }
+
+  function handleDisconnect() {
+    clearInterval(pingInterval);
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('tap-bar').style.display = 'none';
+    document.getElementById('viewport-container').style.display = 'none';
+    
+    const btn = document.getElementById('connect-btn');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Connect Terminal';
+    }
+  }
+
+  function renderTotalOnly(total) {
+    hideAllScreens();
+    document.getElementById('display-screen').style.display = 'flex';
+    document.getElementById('tap-bar').classList.remove('active');
+    document.getElementById('total-val').innerText = `$${(total || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  }
+
+  function showSquareBluePayment(total) {
+    hideAllScreens();
+    document.getElementById('pay-screen').style.display = 'flex';
+    document.getElementById('tap-bar').classList.add('active');
+    document.getElementById('pay-amount').innerText = `$${(total || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  }
+
+  function showApproved() {
+    hideAllScreens();
+    document.getElementById('approved-screen').style.display = 'flex';
+    document.getElementById('tap-bar').classList.remove('active');
+
+    setTimeout(() => {
+      hideAllScreens();
+      document.getElementById('display-screen').style.display = 'flex';
+      document.getElementById('total-val').innerText = '$0.00';
+    }, 2200);
+  }
+
+  function showDeclined() {
+    hideAllScreens();
+    document.getElementById('declined-screen').style.display = 'flex';
+    document.getElementById('tap-bar').classList.remove('active');
+
+    setTimeout(() => {
+      hideAllScreens();
+      document.getElementById('display-screen').style.display = 'flex';
+    }, 2500);
+  }
+
+  function hideAllScreens() {
+    ['display-screen', 'pay-screen', 'approved-screen', 'declined-screen'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+</script>
+</body>
+</html>
