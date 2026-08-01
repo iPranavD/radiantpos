@@ -16,21 +16,21 @@
     --green: #16c784;
     --red: #ff4d4d;
   }
-  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  * { box-sizing: border-box; font-family: Arial, sans-serif; }
   body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
   /* Top bezel — plain, no branding */
-  .hardware-bezel { height: 44px; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--line); }
-  .contactless-icon { width: 18px; height: 18px; fill: #ffffff; opacity: 0.6; }
+  .hardware-bezel { height: 44px; background: #000; display: flex; align-items: center; justify-content: center; }
+  .contactless-icon { height: 26px; width: auto; opacity: 0.85; display: none; }
 
   /* Connection screen */
   #connect-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
   .connect-box { width: 100%; max-width: 340px; }
-  .connect-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .connect-title { font-size: 20px; font-weight: 400; margin-bottom: 4px; letter-spacing: -0.3px; }
   .connect-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
   input { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 20px; text-align: center; margin-bottom: 14px; outline: none; font-family: monospace; letter-spacing: 4px; }
   input:focus { border-color: var(--accent); }
-  .connect-btn { width: 100%; padding: 14px; background: var(--text); color: #000; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .connect-btn { width: 100%; padding: 14px; background: var(--text); color: #000; border: none; border-radius: 8px; font-size: 15px; font-weight: 400; cursor: pointer; }
   .connect-btn:hover { opacity: 0.9; }
 
   /* Main app */
@@ -39,45 +39,44 @@
   /* Idle screen — logo + wordmark, nothing else */
   #idle-screen { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.35s ease; }
   .logo-mark { width: 52px; height: 52px; margin-bottom: 16px; }
-  .wordmark { font-size: 15px; font-weight: 700; letter-spacing: 6px; color: #fff; text-transform: uppercase; }
+  .wordmark { font-size: 15px; font-weight: 400; letter-spacing: 6px; color: #fff; text-transform: uppercase; }
 
   /* Bill view — total up top, items below, minimal */
   .bill-container { flex: 1; display: flex; flex-direction: column; background: #000; overflow: hidden; padding: 40px 32px; }
   .bill-total-block { text-align: left; margin-bottom: 28px; }
   .bill-total-label { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; font-weight: 400; }
-  .bill-total-amount { font-size: 40px; font-weight: 400; letter-spacing: -0.5px; font-family: Georgia, 'Times New Roman', serif; }
+  .bill-total-amount { font-size: 40px; font-weight: 400; letter-spacing: -0.5px; }
   .bill-items { flex: 1; overflow-y: auto; }
-  .bill-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; font-size: 16px; font-weight: 400; font-family: Georgia, 'Times New Roman', serif; }
+  .bill-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; font-size: 16px; font-weight: 400; }
   .bill-row-name { font-weight: 400; }
   .bill-row-price { font-weight: 400; color: var(--text); }
   .bill-empty { color: var(--text-muted); text-align: left; margin-top: 20px; font-size: 14px; font-weight: 400; }
 
   /* Tip screen */
   .overlay-screen { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 30px; text-align: center; }
-  .tip-heading { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .tip-heading { font-size: 20px; font-weight: 400; margin-bottom: 4px; }
   .tip-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
   .tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
-  .tip-btn { padding: 18px; background: transparent; border: 1px solid var(--line); border-radius: 10px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .tip-btn { padding: 18px; background: transparent; border: 1px solid var(--line); border-radius: 10px; color: #fff; font-size: 16px; font-weight: 400; cursor: pointer; }
   .tip-btn:hover { border-color: var(--accent); background: rgba(77,109,255,0.08); }
 
   /* Payment / result screen — total centered, arrow + tap below it */
   .auth-screen { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 30; text-align: center; }
-  .auth-total { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 28px; }
+  .auth-total { font-size: 48px; font-weight: 400; letter-spacing: -1px; }
+  .tap-indicator { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; align-items: center; }
   .pointing-arrow { width: 28px; height: 28px; fill: var(--accent); margin-bottom: 6px; animation: pointUp 1.2s infinite ease-in-out; }
   @keyframes pointUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .auth-caption { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
 
   .result-icon { width: 56px; height: 56px; margin-bottom: 20px; }
-  .result-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .result-title { font-size: 22px; font-weight: 400; margin-bottom: 6px; }
   .result-sub { font-size: 14px; color: var(--text-muted); }
 </style>
 </head>
 <body>
 
   <div class="hardware-bezel">
-    <svg class="contactless-icon" viewBox="0 0 24 24">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v6h2zm0 8h-2v2h2z"/>
-    </svg>
+    <img class="contactless-icon" id="bezel-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOwAAACUCAMAAACnfDWKAAAAbFBMVEUAAAD////8/Pz4+Pj19fXk5OS+vr7s7Ozv7+/y8vLp6enc3Nzf39/Ly8vR0dFfX18oKCiXl5dCQkIfHx9TU1MZGRmurq6FhYUPDw+jo6NpaWmdnZ23t7fFxcUxMTFycnKOjo5LS0t7e3s5OTnPO4RdAAAR+klEQVR4nNVd59qiOhD+pEpHQJp07v8eD0mAGRCUAOqe+bHPLouQSaa8UxL+/j5A8d11Cy9Io+oRKpYhX0XhchE12bSVLKmi0vGKwvXjT7z6m3RvA6esEsXQLq9JNK2watLAc3895H3UptEttGXxDZsT0u3sEZX1/2uRvSZRbF3g4XMkQbWVMAp+zcJGchJbXhBbQTdsK1eULAzDJEm6PzNFUSzb0KXnmyXZyBr/15y8o8i6zgVXNJSqDNrCdX3fv9/v8UDd3+++77puG6RVaMx/J2jG7Z/l1/UqY8Kkdu2Wx+N4QtuEhqpNmNaToPjnVNh1KhuN8WraWcTDJ1DdhLZ5Rc+SH2lx8mgPUVApoHid2CZNe+h5bZNkBjxRyG/Ov7K8jQLiq+aP5hxLWjePXIXlzat/gN17BYhBVNLgTIkrgjQb11cykh8jjvihjt7UKt37+S9w03xcXi37HbtxkYFfjD74okge11dpf+KN4iDpF1UwM+fDL3MyeZCgzPk+u07YWw/Ruu3zMXxUPwbXJmXpF96HyA3lflWV6FtO0KusweRn35jegSpzlKlvmoyiHNiVH99yRPXgVq2vI7m4lgd2vyLLRTjoav2N1z2RM0QMysdl2U/Z1Ap28+lXrVJkM8t8LT+rQ3XI3mPezscP28m99YqUfTLGb9hLpPDXiYQgYXHRB7FMyICMmf4ek8eO3cPxDz2/l53HZx7PTVHvdI9Fk8tUsmWVT7aBvuc43j4A6DJvL0ZnC9r9pjGodrJh8ohqSMo+LxaHdFBici5avmfUCutnT6LXA15j5xw21BEK2ancsjFZZxvh+DGEbsnOJwQMQNrnLYLLeD0/dPYgn7N3tC4DdMZZY6uZIbid9DhEARQNrN0PqZg/PMcoO1QvtE/AwxbSr+J+YF9SM2WeoWMOXVe5POFRz3S7nLC0fwyvG8e5DYxPBlSOPDJ7PTCdPbdHwzDmuNWPYeEQlvaICw90KskHQQBVKvW0fFrRRFNDkkIe/HpEehi39qHB0ZytfhavrfUsbZAVviRHnCXj9oDiMyFTz9LXtldQA8NrB0o610M651Bus92/r8RTfU64uISo+LcWnLZN1ZRO/SaNWRKNEKudg3Our0bATyNTGrZ3ATBrLstxSqRf0O08fFSvGi6aI/aFSt1e0LpAyPA+vYbRotFvdLhBVM2O52qlKECxlLlrbArV+BPDHMQVNsklXF5KO9DErTBpRhGvumw90meO87WHvCMqFPqZaYAIhot9hItWbuFXJDBySZCfJrk+ZVqzk9SN0XK4FAHxo5OWKKx0asHKRW0x2CAjzPhsIFxlslZek1iyjptUrt0aB14PJwICkzXegkxMhFg4N90E0evlkqPrATQSPaOCoBP+uT8o0luY2zLqQzDCkgl1RZZe4dS9hgzAPlSzKqrHI5oAuAD6Qq5oaV1lvPycPStnGj5S60Qdy2PZX3hQbl2itpzeksZe2iEhLkiZQrKxvMYICYfoegWm5ylo7v5PXYW8cRGkzS2jBRGBqUBAvK3NZWqi+Xi4yR3gEk4hlLC0BhpPYI6X89lj/Oy9VPqt53Vvs9gTH8u6v04tmR6N4wfPZC8OHwRWqNDlDOZgBhkLddvIHbCmZJZVDuRJZ+dQuO6NTlXCY0VLq6Alr6TFuzuqu2tbtKnDYUKP4R0+qbyLi4aRh4DZqQIBEtbSxbtniK3ZuEol8pM0ttqcy6cLezDWWcH3FaCC2+Ld+dQDhKMuvqbOV8sD2HSEBeVfJaKx+cHc5A24wh4s1hYvP8a7Z3kzc2NtiUCPwWjHGcdiEU8gHA3sYgTssNKBLbog8awBEk1f3F2o8L+Lh2XKxnN00kFOIwnDLLdNXacTqimb2DWfpWkD+d60PpUAVxMkDJcxF2C4Jp7Wm+YO2jGvkczGd1kk5S0XBDwJvBnx4tYZ1OtkVdBLsdYB7MdzYMEAsf50QoZgSYlCBmnSfYWC4imFbwwVETSTM0NSKM+LtQKXACALCCxARDSpieZIFZnf0vMwUagcyBXMYUXAWq5MiSWBo1cpR1pY440JB5kVkHOuQWsxPkGLgGxRAVfxPOvIFxVkXVl3W8mKitbISCcY1pNFDW5EIcVXJb6IQFpO8wQFKhPWxUe2CD2vheQptrNwLzJnXVAIKEMhaL/nzmftX5IFqGkppVIT5boY69ySRVJ5OP3rc11PEotSEMjroTkw0CPgCchclOJFHnj3pw/32TtFmuHpgu859OopIHJqrtkpuki8CUmU6tZAkFuwOjKSMVBPCT0CUDNSoQQtS/UUzERMT6r4r5HW2x/I4q39ZypctqFRTD6wdUEqArYIR5jpqMsCGgOkK1DGzEIykS1YEtYZK5ehMJGSKZFRrMR8dN43cYipAlAggV9EsB8JYDACYYxcQOZhve/GRRhVUVkSuCAkrxCll/AwnC4B0D2b6dI2uqMdPeHoUVwEeeFeJN1oCmp4wOgrummRRq3IlhkqexPwSvMIFFkCDjTm3pF6cmCsKN+1GKfe4SqCFR48YPx9B2+0UdmblUKM39Ap1cJ1tOR1LkhcyElTf7cnHYO0FoYE0o3HCUASiVALIh+gG+XxhviyFgD5EQ2H1fUgv7Pql+vzZery9wQ8d2AWpC0Y8Z2ARgJhngyaVEBqZkVyyRytxWIJnVVttTZSLQo6SY1ru7qKEISAixCUI52JxryEDsKN9HuYl8KaxsLmC26LnEqGsrKz696ZN/Ep9UI8wAvE8YKQ1sKAgAMEcNJxvVEVyoVC7WAySIcDllvaRb7aUl3mRGC0ZLlJgLgAY/5TYqatXdV6D4AFLAcEAyE8FBopEAJBwGqw0cRzTV5Bf2ivWRS3oXbDXG7ui6ZjoESADG9CvX9X/jRajJZQ5DbuMcAY7w7zMihX9YRbqYs2V+1nG9EJtxct1YIgE7kLdzGLRgseBaACMqTQ/YRKxzHY6AEo3Z6zfrQIJq2nIFo6CMFeiFCJNTem7olM3b5WNlTJAcAHLWwoBgdwiYpJ6OeDBSZX/uYTTyeqWh9GYVHDvJCjIEZlGhppu5lFRQwQPm9kFqGKeBT4ZWaHLpAO3l/0pJm1I9N29nlWBlPKqiFP+8io6E3MFxnczsYCYBZi9XaJ2b8lZlEkMMhurxiSnd2i1BuWOK7IguSvUilsv4RRzWaE2IpJJ8O/xOxfO1poUbeVsCrZYtFUlPEK5nk3cotgz5SbOHgsyNJrjXhFwCwgs0UxXmQWiTFYJTfNUG+CqMpGnjT1X0FWTn1ZnqmpvZtNCNEfXIhQ9zMLSwOAtl7U2TcGCpvgu1sENwtc+EUQJc1gM/B6nLU1N77d3F8nKILM2T4DhVwP4Pv0tTVG5VjkepaqTF4UyldJnB5qkr32kcFz2ED8PggykbB9bXWofg7oHUDFop9FoAIxuxqH11Fi2bIKiQKLeyuKjTFq+H7CVqiF+B2EEyGFJQSFsjUoyn2dx63LKhkfYPCW39rOlOeDKyOak+/CxjWIF9gFBCFhBgEbo0ZUH259n+4joiErRJN1XtdBzOjwGyJ3+6Ie1OADF2G1kcmHxKsOPh6FeG8LyTSy9YqAKI7I2YJHILzYT3xKNGkXs6BJAKCKN/GsDIpcLM7LIpFwgBqxmE7w5koso/Q6YrSW/HxPWxvqcQKVLeG8DiRui1lTlJZ5J5kP4aL260H75Z/i1NdEXl/RvxXknTtqsy7qOQPZBG8kI/++6GQAa70tI2dIrVnGn6v9o7CHNkVqJ3Z0KKOkjA12F7JwqMyOfBR6EcouvluoSbqc1g9VLmiQisOGBLLI0rvbn3+PjvYCKXQgiYbcCXieS4WeAA945/mSaT8aSbYJXGYqHEp3NNzmTi+ihUWlXUgjYsSfjhIvoIBrKYxYIZKuwZt4IqJ6Coe/jK+9otPMR7X9h5RQixoyTwgn4P5uQFUCGuAS2FwjoqeYW7o9YFNTzfCDfpz+nvoHKuqgEpJzXWIAYWgdPQJke0O/FplbHL7Q6ovMkdsnNpLMFpEn3n0YgInwhgSQTOw6ke/FhhDu3YKJWHIGCQbJo3I0o5KCiNkPnE/f++7k+fhdWCxcm6yBLTS4GK5u2R12p8kZ3B2SaBvniRFJ+fz1GSKbE0QNncQWiiBR4R2rBVpv9BIwxtImqbrTrClKRcTkgrB5Q7ivMFRLetO4dwGyvUiTnB6qYmKYALYMqyyq7G00NHRH5BWtpUPY37yhOdAps3RjFXevsV8pYYA9JOqKmTgTuIzfAVMwT9uvkzh7CE0qb25DfLB4hczy8f13aGGryTuWlNOHfv+tejfUv1EwQd9pbHVBTLdoI+HRvRAOYN3rcoObisxLM96tbQzHKehUiVUSI1jMTNweofavt2dD2UMAgC/4oCpISk3aHJDKbnwvsSx5GpGhCsooI/eHxgvta/LWY/vSkDeVsS9Bc4DkFbVkbMwJkUMHSMTh0XhRDoeJIzkAkS9qoz77UMNxvdwbDqX4SWMx9FFt7RAlRXPmoyhWFGSlrOsysehmH74tOtSSHtl4i+zTJLRead5ECHKbypIss9zLQH/6oyDA3jUug3Pn6cVeprKPbXCKoj8tgBkiJGsFxL0bZ5gkXuHUEccejbkg0m5Frj36DjFz8iFBflBuhYnDRkk5FOKjOELY6t+70EnEaE2xZV2n200jMnNcwTxNWfMi5Pl4clO2pn3hCC1jSUNtf1vdO4FLE7zmOqkTUDN1F3jPI6HjOnJ0BHl/4Ezf2cDCqmhhPciiyn8biSracj8B9WN8Iydtx7x5uzfk454/dB1lZLbLEl0NcV6UpETMK+euJJqh3w5UNxBi6oKeG6OcDsfkusyqLRw7QtKHvOngk7f3T9AyBjktXN4sxZRK9qUC6+kI0+TCnSFlyO7EvdHAlIiHh3wvb8L6ZvR7BZBEFCkru3PKJDWSJx4rA0xNbDSgZf66S9ufcW/f2DBj55ZLvOpPyadAdisyf08jdJjAueVM1WbyIsauqTR1GVoIknNqLUtnH92VB4/rhzFtG4bhCftUpihZ5C+pWi8kSkoQDW/+gWUNlbO4ZX522vkBWw4PvAeVHvoTRY3NMBuIleFOO6kusGQ9n6gFajM+tNexP49nPNPaE6fZv03EtpPsazxYpNmT0MJyj23yHPqIHKwpgeHciTSG3cMPnSSMkOLu837+xirDxLfmeywe41b5xPGrkxNYDpyc6GYLxpzOIze3TEJ46kabyV053WDXU+aMUevK3TvNdnTz7jLdQuhIEj6kiImpwsLRMLS2yH2uYMVOwD3/OMIaUlK7YSmbMGkpXKcRwSXnPP4/YoX1l/tu95A/4uLdCa+GbXJZCVgyOnAlcnhGzo7WfbupmpucPq2o73xwy74/Iq+66CZnN2QJxwew+iPAX3b57qC4oWBg76F4ATtk/9WoiqaH5Nrz1un1H7F2O6naN6w1iutQN/d+uaTvHnvjKNyaeSauHdA92Dl2DMuZxKZ/S0IyLi2Jc+C9ggnRh+AUF7n9sm5OCjqcrtNj2n7Jv/zBnAVyGJAQPvgBEv/GFld/sVn1G+SGzEFrj48KWX/g+cWoPvmWNzR8b9D+9Nfy/B67C6sbAD9Nvb+5XL7xpctxh6HtfXhiFygeg8JD4S8HlcPcZsF3DbMb9Al1wfjkp+mmdH/0CW9Bab5nqoom6ydZ/u7HD+ukD1hE6/Yddoub1Zd8r+HXzUWQiINIfeFbRXVoDJ8cDH/xxdK4GPvfpQ9/cauxx+btsP3ZB68ekGrIgs98qt0fvutFQMSpVUVuut/gi6x6knrnDib20gecVvnzb7L+kW/tQgXDCKPTvoHoB1ECmVY9r366qiM5Nwty3XIe7vxaNKa2THITHd34+H3sMVLrPNCuXs20w2h/6tVtEgt/Ilvt1OPEsZ5AceFk+KPloqZaN35/GFS5ruFtskLm/HvfPqfUhvJsP+/FyKq0LVz/vjri+H733aJ1otCY/lQQ9ewzhYizqL5Zpjpj+CLIdvaIytQBSjsqmyaKbkk2OV+8/8XV/M5HfI+SWyaKrc8ZZjwIkiSJuM1w6SbdVpLyn/qQ/Wtq0+ihGNoLlpZJMpRHlP7bwrtIbu2UVWir71mkpNphVTr174HDfoo741OnUSfYpipNhbeTaVWVDcPKOy7rzoh92er+B4wL9AbpkNphAAAAAElFTkSuQmCC" alt="Tap to pay">
   </div>
 
   <div id="connect-screen">
@@ -94,7 +93,7 @@
     <div id="idle-screen">
       <svg class="logo-mark" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 44 L6 6 L44 6" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="square"/>
-        <text x="20" y="47" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="38" font-weight="800" fill="#E4142B">R</text>
+        <text x="20" y="47" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#E4142B">R</text>
       </svg>
       <div class="wordmark">RADIANT</div>
     </div>
@@ -125,8 +124,10 @@
       <div id="result-title" class="result-title" style="display:none;"></div>
       <div id="result-sub" class="result-sub" style="display:none;"></div>
       <div id="pay-total" class="auth-total" style="display:none;"></div>
-      <svg class="pointing-arrow" id="pay-arrow" viewBox="0 0 24 24" style="display:none;"><path d="M7 14l5-5 5 5z"/></svg>
-      <div class="auth-caption" id="pay-caption" style="display:none;">Tap</div>
+      <div class="tap-indicator" id="tap-indicator">
+        <svg class="pointing-arrow" id="pay-arrow" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+        <div class="auth-caption" id="pay-caption">Tap</div>
+      </div>
     </div>
 
   </div>
@@ -171,11 +172,11 @@
 
   function resetResultScreen() {
     document.getElementById('pay-total').style.display = 'none';
-    document.getElementById('pay-arrow').style.display = 'none';
-    document.getElementById('pay-caption').style.display = 'none';
+    document.getElementById('tap-indicator').style.display = 'none';
     document.getElementById('result-title').style.display = 'none';
     document.getElementById('result-sub').style.display = 'none';
     document.getElementById('auth-icon-container').innerHTML = '';
+    document.getElementById('bezel-icon').style.display = 'none';
   }
 
   function handleCashierData(data) {
@@ -260,8 +261,8 @@
 
     document.getElementById('pay-total').innerText = `$${finalAmount.toFixed(2)}`;
     document.getElementById('pay-total').style.display = 'block';
-    document.getElementById('pay-arrow').style.display = 'block';
-    document.getElementById('pay-caption').style.display = 'block';
+    document.getElementById('tap-indicator').style.display = 'flex';
+    document.getElementById('bezel-icon').style.display = 'block';
   }
 </script>
 </body>
